@@ -10,20 +10,20 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class BookScanner implements ActionListener {
-    private ArrayList<File> files = new ArrayList<>();
+    private ArrayList<File> files = new ArrayList<>();// Список в котором будут храниться все файлы с заданным расширением
 
     private JButton openButton;
     private JButton saveButton;
     private JButton findButton;
-    private JFileChooser fc;
-    private JFileChooser fs;
-    private JTextField textExt;
+    private JFileChooser fc;// Для выбора директории с файлами
+    private JFileChooser fs;// Для экспорта файла с путями
+    private JTextField textExt;//Здесь будем перечислять расширения
     private File dir;
-    private Form1 f1;//Первое окно
-    private Form2 f2;//Второе окно
+    private Form1 f1;//Первая форма
+    private Form2 f2;//Вторая форма
     private JFrame frame;//Основной фрейм
     private final String[] columnNames = {"Имя файла", "Полный путь"};//Названия колонок в таблице
-    private JLabel folder;
+    private JLabel folder;//Здесь будет отображаться выбранная папка
 
 
     private BookScanner() {
@@ -62,46 +62,44 @@ public class BookScanner implements ActionListener {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 dir = fc.getSelectedFile();
             }
-            folder.setText(dir.getPath());
+            if(dir != null)folder.setText(dir.getPath());//Показать на лэйбле путь к папке, которую выбрали
         }
         //Обработчик кнопки "Искать"
         else if (e.getSource() == findButton) {
-            if (dir == null) {
+            if (dir == null){//если папка не выбрана
                 JOptionPane.showMessageDialog(frame, "Пожалуйста, выберите папку!!!");
                 return;
             }
 
-            files.clear();
-
-            if (textExt.getText().equals("")) {
+            if (textExt.getText().equals("")) {//если не перечислен ни один тип
                 JOptionPane.showMessageDialog(frame, "Перечислите хотя бы один тип!!!");
                 return;
             }
 
-            String[] types = textExt.getText().split(",");
+            String[] types = textExt.getText().split(",");//дробим строку с типами по запятым
 
             for (String type : types) {
-                type = type.trim();
-                getFiles(dir, type);
+                type = type.trim();//убираем пробелы по краям, если они есть
+                getFiles(dir, type);//ищем файлы заданного типа в папке рекурсивно
             }
 
-            int size = files.size();
+            int size = files.size();//количество найденных файлов
 
-            if (size == 0) {
+            if (size == 0) {//если файлов не найдено
                 JOptionPane.showMessageDialog(frame, "Файлов не найдено :(");
                 return;
             }
 
-            String[][] data = new String[size][2];
+            String[][] data = new String[size][2];//массив с именами и полными путями всех файлов для таблицы
 
-            for (int i = 0; i < size; i++) {
+            for (int i = 0; i < size; i++) {//заполняем массив
                 data[i][0] = files.get(i).getName();
                 data[i][1] = files.get(i).getPath();
             }
 
-            frame.remove(f1);
-            frame.add(f2);
-            JTable table = new JTable(data, columnNames);
+            frame.remove(f1);//убираем предыдущую форму с фрейма
+            frame.add(f2);//добавляем новую
+            JTable table = new JTable(data, columnNames);//строим таблицу
             JScrollPane logScrollPane = new JScrollPane(table);
             f2.add(logScrollPane, BorderLayout.CENTER);
             frame.pack();
@@ -112,9 +110,9 @@ public class BookScanner implements ActionListener {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 File file = fs.getSelectedFile();
                 try {
-                    PrintWriter pw = new PrintWriter(new FileOutputStream(file.getPath() + ".txt"));
-                    for (File f : files) pw.println(f.getPath());
-                    pw.close();
+                    PrintWriter pw = new PrintWriter(new FileOutputStream(file.getPath() + ".txt"));//Создаем файл куда будем сохранять пути
+                    for (File f : files) pw.println(f.getPath());//записываем данные в цикле
+                    pw.close();//закрываем файл
                 } catch (FileNotFoundException ignored) {
                 }
             }
